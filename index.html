@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>교실용 럭키 룰렛 - 결과 강조 & 중복 방지</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Inter & Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome 아이콘 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            background: radial-gradient(circle, #f0f4f9 0%, #e2e8f0 100%);
+        }
+        /* 룰렛 입체감용 섀도우 */
+        .wheel-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 
+                        0 0 40px rgba(99, 102, 241, 0.15);
+        }
+        /* 당첨 결과 초거대 텍스트 (모바일 대응 포함) */
+        .text-super-giant {
+            font-size: 10rem; /* 기본 크기 (모바일) */
+            line-height: 0.9;
+        }
+        @media (min-width: 640px) {
+            .text-super-giant {
+                font-size: 16rem; /* 태블릿/데스크톱 크기 */
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-800 transition-colors duration-300">
+
+    <!-- 상단 네비게이션 / 헤더 -->
+    <header class="w-full max-w-4xl mx-auto px-4 pt-6 pb-2 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="bg-indigo-600 text-white p-2.5 rounded-2xl shadow-lg shadow-indigo-200">
+                <i class="fa-solid fa-circle-dot text-2xl animate-pulse"></i>
+            </div>
+            <div>
+                <h1 class="text-xl md:text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                    수업용 원판 룰렛 <span class="text-xs bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full font-bold">Safe Spin</span>
+                </h1>
+                <p class="text-xs md:text-sm text-slate-500 font-medium">중복 없이 공정하게 하나씩 추첨</p>
+            </div>
+        </div>
+        
+        <!-- 환경설정 컨트롤 버튼들 -->
+        <div class="flex items-center gap-2">
+            <button id="muteBtn" class="bg-white hover:bg-slate-50 text-slate-600 p-3 rounded-2xl border border-slate-200/80 transition-all duration-200 shadow-sm flex items-center justify-center gap-2" title="소리 켜기/끄기">
+                <i id="muteIcon" class="fa-solid fa-volume-high text-lg text-indigo-600"></i>
+                <span class="hidden sm:inline text-xs font-semibold">효과음</span>
+            </button>
+            <button id="resetHistoryBtn" class="bg-white hover:bg-slate-50 text-slate-600 p-3 rounded-2xl border border-slate-200/80 transition-all duration-200 shadow-sm flex items-center justify-center gap-2" title="기록 초기화">
+                <i class="fa-solid fa-trash-can text-lg text-rose-500"></i>
+                <span class="hidden sm:inline text-xs font-semibold font-medium">기록 삭제</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 메인 레이아웃 -->
+    <main class="flex-grow flex flex-col lg:flex-row items-center justify-center max-w-6xl w-full mx-auto px-4 py-4 gap-8">
+        
+        <!-- 왼쪽: 룰렛 원판과 돌리기 버튼 -->
+        <div class="flex-grow flex flex-col items-center justify-center w-full max-w-xl">
+            <!-- 남은 대상 개수 배지 표시 -->
+            <div class="mb-2 bg-indigo-50 border border-indigo-100 px-4 py-1.5 rounded-full flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
+                <span class="text-xs font-bold text-indigo-700">남은 추첨 대상: <span id="remainingCount" class="text-sm font-black text-indigo-900">7</span> / 7</span>
+            </div>
+
+            <!-- 룰렛 보드 컨테이너 -->
+            <div class="relative w-full aspect-square max-w-[420px] md:max-w-[460px] p-4 flex items-center justify-center">
+                
+                <!-- 상단 핀 / 인디케이터 (당첨 화살표) -->
+                <div class="absolute top-0 z-20 flex flex-col items-center">
+                    <!-- 화살표 몸체 -->
+                    <div class="w-8 h-10 bg-gradient-to-b from-rose-500 to-rose-600 rounded-b-full shadow-lg transform origin-top transition-transform duration-100 flex items-center justify-center" id="pointer">
+                        <div class="w-3 h-3 bg-white rounded-full"></div>
+                    </div>
+                    <!-- 화살표 끝 뾰족한 삼각형 -->
+                    <div class="w-0 h-0 border-l-[16px] border-l-transparent border-r-[16px] border-r-transparent border-t-[20px] border-t-rose-600 -mt-0.5 filter drop-shadow-md"></div>
+                </div>
+
+                <!-- 룰렛 테두리 장식 프레임 -->
+                <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-900 to-slate-800 p-[14px] wheel-shadow flex items-center justify-center overflow-hidden">
+                    <!-- 내부 흰색 간격 -->
+                    <div class="w-full h-full rounded-full bg-white p-[6px] shadow-inner flex items-center justify-center relative overflow-hidden">
+                        
+                        <!-- 룰렛 드로잉 캔버스 -->
+                        <canvas id="rouletteCanvas" class="w-full h-full rounded-full transform rotate-0"></canvas>
+                        
+                        <!-- 데코레이션 전구들 (보더를 따라 원형으로 배치) -->
+                        <div id="lightsContainer" class="absolute inset-0 pointer-events-none rounded-full"></div>
+                    </div>
+                </div>
+
+                <!-- 중앙 코어 베어링 버튼/축 -->
+                <div class="absolute z-10 w-16 h-16 md:w-20 md:h-20 bg-white rounded-full shadow-xl flex items-center justify-center border-4 border-indigo-600/20">
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-tr from-indigo-500 to-indigo-700 rounded-full flex items-center justify-center text-white font-extrabold text-lg shadow-inner shadow-indigo-900/30">
+                        <i class="fa-solid fa-star text-yellow-300 animate-spin" style="animation-duration: 6s;"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 컨트롤 버튼부 -->
+            <div class="w-full max-w-sm mt-6 px-4 flex flex-col items-center gap-3">
+                <!-- 룰렛 돌리기 버튼 -->
+                <button id="spinBtn" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 active:scale-95 text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-indigo-200 hover:shadow-indigo-300 transition-all duration-200 text-xl tracking-wider flex items-center justify-center gap-3 border-b-4 border-indigo-800">
+                    <i class="fa-solid fa-play-circle text-2xl"></i>
+                    <span>룰렛 돌리기 !</span>
+                </button>
+                
+                <!-- 추첨 판 초기화 버튼 (비복원 리셋) -->
+                <button id="resetWheelBtn" class="w-full bg-white hover:bg-slate-50 border-2 border-dashed border-indigo-300 text-indigo-600 font-extrabold py-3 px-6 rounded-2xl transition-all duration-200 text-sm tracking-wide flex items-center justify-center gap-2 hover:shadow-md">
+                    <i class="fa-solid fa-arrows-rotate text-base animate-spin" style="animation-duration: 8s;"></i>
+                    <span>🔄 룰렛 판 초기화 (모든 칸 채우기)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 오른쪽: 히스토리 -->
+        <div class="w-full lg:w-80 flex flex-col gap-5 shrink-0 self-stretch justify-center">
+            <!-- 히스토리 목록 패널 -->
+            <div class="bg-white/70 backdrop-blur-md rounded-3xl p-6 border border-white/50 shadow-lg flex-grow flex flex-col min-h-[220px] max-h-[300px] lg:max-h-[320px]">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-sm font-extrabold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-history text-indigo-500"></i> 누적 히스토리
+                    </span>
+                    <span id="historyCount" class="text-xs bg-slate-200/80 text-slate-600 px-2 py-0.5 rounded-md font-bold">0회</span>
+                </div>
+                <!-- 히스토리 아이템 리스트 -->
+                <div id="historyList" class="flex-grow overflow-y-auto space-y-2 pr-1 text-sm text-slate-500 flex flex-col items-center justify-center">
+                    <!-- 초기 메시지 -->
+                    <div id="emptyHistoryMsg" class="text-center py-6">
+                        <i class="fa-solid fa-circle-question text-3xl text-slate-300 mb-2 block"></i>
+                        <span class="text-xs text-slate-400">아직 당첨 기록이 없습니다.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 푸터 라이선스 -->
+    <footer class="w-full max-w-4xl mx-auto px-4 py-4 text-center text-xs text-slate-400 font-medium">
+        &copy; 2026 Classroom Roulette Spinner. Results displayed largely for maximum clarity.
+    </footer>
+
+    <!-- 당첨 결과 초거대 오버레이 (모달) -->
+    <div id="resultModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-lg z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="w-full h-full flex flex-col items-center justify-center p-8 text-center" id="modalCard">
+            <!-- 트로피 아이콘 (작게 상단에) -->
+            <div class="w-16 h-16 bg-gradient-to-tr from-amber-400 to-yellow-300 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-amber-200 mb-6 animate-bounce">
+                <i class="fa-solid fa-trophy text-3xl text-amber-700"></i>
+            </div>
+            
+            <h3 class="text-2xl font-bold text-white mb-2 tracking-tight">🎉 축하합니다! 당첨되었습니다 🎉</h3>
+            
+            <!-- 초거대 결과 텍스트 -->
+            <div id="modalResultText" class="text-super-giant font-black tracking-tight leading-none my-8 drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)]">
+                DICE
+            </div>
+            
+            <button id="modalCloseBtn" class="mt-12 bg-white hover:bg-slate-100 text-indigo-700 font-black py-4 px-12 rounded-2xl transition-all duration-200 shadow-xl text-lg tracking-wider active:scale-95">
+                확인
+            </button>
+        </div>
+    </div>
+
+    <!-- 꽃가루 전용 캔버스 -->
+    <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-40 hidden"></canvas>
+
+    <script>
+        // --- 오디오 효과음 생성 클래스 (외부 오디오 파일 불필요) ---
+        class SoundEffects {
+            constructor() {
+                this.ctx = null;
+                this.isMuted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playTick() {
+                if (this.isMuted) return;
+                this.init();
+                try {
+                    let osc = this.ctx.createOscillator();
+                    let gain = this.ctx.createGain();
+                    
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.08);
+                    
+                    gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+                    
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.08);
+                } catch (e) {
+                    console.log('Audio playing issue: ', e);
+                }
+            }
+
+            playWin() {
+                if (this.isMuted) return;
+                this.init();
+                try {
+                    // 미니 팡파르 화음 재생
+                    const playTone = (freq, delay, duration, volume = 0.08) => {
+                        let osc = this.ctx.createOscillator();
+                        let gain = this.ctx.createGain();
+                        
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + delay);
+                        
+                        gain.gain.setValueAtTime(0.001, this.ctx.currentTime + delay);
+                        gain.gain.linearRampToValueAtTime(volume, this.ctx.currentTime + delay + 0.05);
+                        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + duration);
+                        
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        
+                        osc.start(this.ctx.currentTime + delay);
+                        osc.stop(this.ctx.currentTime + delay + duration);
+                    };
+
+                    // 도-미-솔-도 화음 전개
+                    playTone(261.63, 0.0, 0.3); // Do
+                    playTone(329.63, 0.1, 0.3); // Mi
+                    playTone(392.00, 0.2, 0.3); // Sol
+                    playTone(523.25, 0.3, 0.6, 0.12); // High Do
+                    playTone(659.25, 0.4, 0.6, 0.1);  // High Mi
+                } catch (e) {
+                    console.log('Audio playing issue: ', e);
+                }
+            }
+
+            toggleMute() {
+                this.isMuted = !this.isMuted;
+                return this.isMuted;
+            }
+        }
+
+        const sound = new SoundEffects();
+
+        // 룰렛 데이터 정의 및 상태 관리
+        const segments = ["1", "2", "3", "4", "5", "6", "Dice"];
+        const segmentColors = [
+            "#f87171", // soft-red
+            "#fb923c", // soft-orange
+            "#fbbf24", // soft-yellow
+            "#4ade80", // soft-green
+            "#38bdf8", // soft-sky
+            "#818cf8", // soft-indigo
+            "#c084fc"  // soft-purple ("Dice")
+        ];
+
+        // 각 세그먼트의 활성화 여부 (true = 남음, false = 당첨 완료되어 비활성화)
+        let activeSegments = [true, true, true, true, true, true, true];
+
+        // Canvas 및 환경 요소 매핑
+        const canvas = document.getElementById("rouletteCanvas");
+        const ctx = canvas.getContext("2d");
+        const spinBtn = document.getElementById("spinBtn");
+        const resetWheelBtn = document.getElementById("resetWheelBtn");
+        const remainingCountLabel = document.getElementById("remainingCount");
+        const pointer = document.getElementById("pointer");
+        const historyList = document.getElementById("historyList");
+        const emptyHistoryMsg = document.getElementById("emptyHistoryMsg");
+        const historyCountLabel = document.getElementById("historyCount");
+        const resetHistoryBtn = document.getElementById("resetHistoryBtn");
+        const muteBtn = document.getElementById("muteBtn");
+        const muteIcon = document.getElementById("muteIcon");
+        const lightsContainer = document.getElementById("lightsContainer");
+
+        // 모달 매핑
+        const resultModal = document.getElementById("resultModal");
+        const modalCard = document.getElementById("modalCard");
+        const modalResultText = document.getElementById("modalResultText");
+        const modalCloseBtn = document.getElementById("modalCloseBtn");
+
+        // 물리/애니메이션 변수
+        let currentAngle = 0; // 라디안 각도
+        let isSpinning = false;
+        let lastTickSegment = -1;
+
+        // 히스토리 관리
+        let historyArray = [];
+
+        // 테두리 반짝이는 전구 장식 동적 생성
+        function buildLights() {
+            lightsContainer.innerHTML = '';
+            const totalLights = 16;
+            for (let i = 0; i < totalLights; i++) {
+                const angle = (i * 2 * Math.PI) / totalLights;
+                const percentX = 50 + 46 * Math.cos(angle);
+                const percentY = 50 + 46 * Math.sin(angle);
+                
+                const light = document.createElement("div");
+                light.className = `absolute w-2.5 h-2.5 rounded-full transition-all duration-300 bg-yellow-300 shadow-[0_0_8px_rgba(253,224,71,0.8)]`;
+                light.style.left = `${percentX}%`;
+                light.style.top = `${percentY}%`;
+                light.style.transform = "translate(-50%, -50%)";
+                lightsContainer.appendChild(light);
+            }
+        }
+
+        // 전구 반짝임 이펙트 제어용 타이머
+        let lightTimer = setInterval(() => {
+            const lights = lightsContainer.children;
+            if (!lights || lights.length === 0) return;
+            const isAlternate = Date.now() % 1000 > 500;
+            for (let i = 0; i < lights.length; i++) {
+                if (isSpinning) {
+                    const phase = Math.floor((Date.now() / 80) % lights.length);
+                    if (i === phase || i === (phase + 4) % lights.length || i === (phase + 8) % lights.length) {
+                        lights[i].style.backgroundColor = "#ffffff";
+                        lights[i].style.boxShadow = "0 0 12px #ffffff, 0 0 4px #fbbf24";
+                    } else {
+                        lights[i].style.backgroundColor = "#fbbf24";
+                        lights[i].style.boxShadow = "0 0 4px #b45309";
+                    }
+                } else {
+                    const toggle = (i % 2 === 0) ? isAlternate : !isAlternate;
+                    lights[i].style.opacity = toggle ? "1" : "0.5";
+                    lights[i].style.backgroundColor = toggle ? "#fde047" : "#eab308";
+                }
+            }
+        }, 150);
+
+        // 캔버스 디바이스 픽셀 비율 조정 (HDPI 화면 번짐 해결)
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0) return;
+
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            drawWheel();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // 룰렛 그리기 함수
+        function drawWheel() {
+            const width = canvas.width / (window.devicePixelRatio || 1);
+            const height = canvas.height / (window.devicePixelRatio || 1);
+            const r = Math.min(width, height) / 2;
+
+            if (r <= 4) return;
+
+            const cx = width / 2;
+            const cy = height / 2;
+
+            ctx.clearRect(0, 0, width, height);
+
+            const arcSize = (2 * Math.PI) / segments.length;
+
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(currentAngle);
+
+            for (let i = 0; i < segments.length; i++) {
+                const startAngle = i * arcSize;
+                const endAngle = startAngle + arcSize;
+
+                // 부채꼴 드로잉
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, Math.max(1, r - 4), startAngle, endAngle);
+                ctx.closePath();
+
+                // 활성화/비활성화 상태에 따른 컬러링 (당첨된 칸은 차분한 그레이스케일 처리)
+                if (activeSegments[i]) {
+                    ctx.fillStyle = segmentColors[i];
+                } else {
+                    ctx.fillStyle = "#cbd5e1"; // 아주 차분한 연회색으로 그레이아웃
+                }
+                ctx.fill();
+
+                // 경계선 스타일링
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+                ctx.stroke();
+
+                // 텍스트 배치
+                ctx.save();
+                ctx.rotate(startAngle + arcSize / 2);
+                ctx.textAlign = "right";
+                ctx.textBaseline = "middle";
+
+                // 당첨된 비활성 세그먼트의 텍스트는 불투명도를 낮춰 시각성 극대화
+                if (activeSegments[i]) {
+                    ctx.fillStyle = "#ffffff";
+                } else {
+                    ctx.fillStyle = "rgba(100, 116, 139, 0.6)"; // 취소선 대신 회색 글자 처리
+                }
+
+                if (segments[i] === "Dice") {
+                    ctx.font = "bold 24px 'Inter', 'Noto Sans KR'";
+                    ctx.fillText("🎲 DICE", r - 35, 0);
+                } else {
+                    ctx.font = "900 28px 'Inter', sans-serif";
+                    ctx.fillText(segments[i], r - 45, 0);
+                }
+                ctx.restore();
+            }
+
+            // 안쪽 골드 링 장식
+            ctx.beginPath();
+            ctx.arc(0, 0, r * 0.25, 0, 2 * Math.PI);
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // 남은 개수 라벨 및 버튼 상태 업데이트
+        function updateRemainingUI() {
+            const count = activeSegments.filter(v => v).length;
+            remainingCountLabel.innerText = count;
+
+            if (count === 0) {
+                spinBtn.disabled = true;
+                spinBtn.className = "w-full bg-slate-300 text-slate-500 font-black py-4 px-8 rounded-2xl cursor-not-allowed text-xl flex items-center justify-center gap-3 border-b-4 border-slate-400";
+                spinBtn.innerHTML = `<i class="fa-solid fa-lock text-xl"></i><span>모두 당첨되었습니다! 리셋하세요</span>`;
+            } else {
+                spinBtn.disabled = false;
+                spinBtn.className = "w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 active:scale-95 text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-indigo-200 hover:shadow-indigo-300 transition-all duration-200 text-xl tracking-wider flex items-center justify-center gap-3 border-b-4 border-indigo-800";
+                spinBtn.innerHTML = `<i class="fa-solid fa-play-circle text-2xl"></i><span>룰렛 돌리기 !</span>`;
+            }
+        }
+
+        // 룰렛 회전 애니메이션 (타겟 지정형 정밀 이징 스핀 - 최소 20바퀴 보장 및 누적 오류 해결)
+        function triggerSpin() {
+            if (isSpinning) return;
+
+            // 남은 후보군만 추출하여 그 중 한 개를 정당하게 타겟 선정
+            const availableIndices = [];
+            activeSegments.forEach((val, idx) => {
+                if (val) availableIndices.push(idx);
+            });
+
+            if (availableIndices.length === 0) return;
+
+            const targetIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+            
+            // 12시 핀 인디케이터에 해당 세그먼트가 딱 오도록 정밀 수학 계산식 가동
+            const arcSize = (2 * Math.PI) / segments.length;
+            const targetCenter = (targetIndex + 0.5) * arcSize;
+            
+            // 12시 방향(1.5 * Math.PI)에서 해당 각도 중심을 뺀 값
+            let baseDestAngle = 1.5 * Math.PI - targetCenter;
+            
+            // 칸 정중앙에서 걸리는 것을 피하고 리얼리티를 주기 위해 안전한 무작위 오프셋(폭 60% 내외) 부여
+            const safetyOffset = (Math.random() - 0.5) * arcSize * 0.6;
+            baseDestAngle += safetyOffset;
+
+            // baseDestAngle을 [0, 2 * Math.PI) 범위로 표준화 (중요!)
+            baseDestAngle = baseDestAngle % (2 * Math.PI);
+            if (baseDestAngle < 0) {
+                baseDestAngle += 2 * Math.PI;
+            }
+
+            // 현재 멈춰있는 각도(startAngle)에 완전히 독립적으로 누적하여 최소 20바퀴(20 * 2 * PI) 이상 돌도록 목표 최종 각도 계산
+            const startAngle = currentAngle;
+            const minRotationsAngle = (20 + Math.floor(Math.random() * 6)) * 2 * Math.PI;
+            const minTargetAngle = startAngle + minRotationsAngle;
+
+            // minTargetAngle을 넘어서면서 회전판의 목적지 각도(baseDestAngle)에 정확히 부합하는 최종 각도(finalAngle) 계산
+            const remainder = minTargetAngle % (2 * Math.PI);
+            let finalAngle = minTargetAngle - remainder + baseDestAngle;
+            if (finalAngle < minTargetAngle) {
+                finalAngle += 2 * Math.PI;
+            }
+
+            isSpinning = true;
+            lastTickSegment = -1;
+
+            const duration = 6500; // 정밀 6.5초 동안 드라마틱 회전
+            let startTime = null;
+
+            function animateWheel(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // 부드러운 하강 곡선을 그리는 Cubic Ease-Out 수학 감속 이징 공식
+                const easeOut = 1 - Math.pow(1 - progress, 3.8);
+                currentAngle = startAngle + (finalAngle - startAngle) * easeOut;
+
+                // 회전 시 바늘 '틱 틱' 튕기는 물리 연출과 타이밍 사운드 재생
+                let relativeAngle = (1.5 * Math.PI - currentAngle) % (2 * Math.PI);
+                while (relativeAngle < 0) {
+                    relativeAngle += 2 * Math.PI;
+                }
+                
+                const currentSegmentIndex = Math.floor(relativeAngle / arcSize) % segments.length;
+                if (currentSegmentIndex !== lastTickSegment) {
+                    sound.playTick();
+                    pointer.style.transform = "rotate(-22deg)";
+                    setTimeout(() => { pointer.style.transform = "rotate(0deg)"; }, 65);
+                    lastTickSegment = currentSegmentIndex;
+                }
+
+                drawWheel();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateWheel);
+                } else {
+                    isSpinning = false;
+                    
+                    // 당첨 판정 및 비활성화 플래그 설정
+                    activeSegments[targetIndex] = false;
+                    drawWheel();
+                    updateRemainingUI();
+
+                    // 당첨 노출 및 꽃가루 연출
+                    announceResult(segments[targetIndex], segmentColors[targetIndex]);
+                }
+            }
+
+            requestAnimationFrame(animateWheel);
+        }
+
+        // 룰렛 판 전면 복구 초기화 함수
+        function resetWheel() {
+            if (isSpinning) return;
+            activeSegments.fill(true);
+            drawWheel();
+            updateRemainingUI();
+        }
+
+        // 당첨 연출 및 정보 업데이트
+        function announceResult(result, color) {
+            sound.playWin();
+
+            // 모달 노출 준비 및 당첨된 칸 전용 테마 적용
+            modalResultText.innerText = result;
+            modalResultText.style.color = color;
+            openModal();
+
+            // 꽃가루 파티 시작
+            startConfetti();
+
+            // 히스토리 적재
+            addHistory(result, color);
+        }
+
+        // 모달 관리
+        function openModal() {
+            resultModal.classList.remove("hidden");
+            setTimeout(() => {
+                resultModal.classList.remove("opacity-0");
+                modalCard.classList.remove("scale-90");
+            }, 10);
+        }
+
+        function closeModal() {
+            resultModal.classList.add("opacity-0");
+            modalCard.classList.add("scale-90");
+            setTimeout(() => {
+                resultModal.classList.add("hidden");
+                stopConfetti();
+            }, 300);
+        }
+
+        // 히스토리 리스트 추가
+        function addHistory(result, color) {
+            historyArray.unshift({ result, color, time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) });
+            
+            emptyHistoryMsg.classList.add("hidden");
+            historyList.innerHTML = "";
+            historyList.classList.remove("justify-center", "items-center");
+            historyList.classList.add("justify-start");
+
+            historyArray.forEach(item => {
+                const element = document.createElement("div");
+                element.className = "w-full flex justify-between items-center bg-white/90 py-2.5 px-4 rounded-xl border border-slate-100 shadow-sm transition-all duration-200 hover:translate-x-1";
+                element.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full" style="background-color: ${item.color}"></span>
+                        <span class="font-extrabold text-slate-700">${item.result}</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 font-semibold">${item.time}</span>
+                `;
+                historyList.appendChild(element);
+            });
+
+            historyCountLabel.innerText = `${historyArray.length}회`;
+        }
+
+        // - 히스토리 초기화
+        resetHistoryBtn.addEventListener("click", () => {
+            historyArray = [];
+            historyCountLabel.innerText = "0회";
+            historyList.innerHTML = "";
+            historyList.classList.add("justify-center", "items-center");
+            historyList.classList.remove("justify-start");
+            emptyHistoryMsg.classList.remove("hidden");
+            
+            emptyHistoryMsg.innerHTML = `
+                <i class="fa-solid fa-circle-question text-3xl text-slate-300 mb-2 block"></i>
+                <span class="text-xs text-slate-400">아직 당첨 기록이 없습니다.</span>
+            `;
+        });
+
+        // 음소거 제어
+        muteBtn.addEventListener("click", () => {
+            const muted = sound.toggleMute();
+            if (muted) {
+                muteIcon.className = "fa-solid fa-volume-xmark text-lg text-slate-400";
+                muteBtn.classList.add("bg-slate-100", "text-slate-400");
+            } else {
+                muteIcon.className = "fa-solid fa-volume-high text-lg text-indigo-600";
+                muteBtn.classList.remove("bg-slate-100", "text-slate-400");
+            }
+        });
+
+        // Event Listeners
+        spinBtn.addEventListener("click", () => {
+            sound.init();
+            triggerSpin();
+        });
+        resetWheelBtn.addEventListener("click", resetWheel);
+        modalCloseBtn.addEventListener("click", closeModal);
+
+        // --- Confetti (꽃가루) 파티클 시스템 ---
+        const confettiCanvas = document.getElementById("confettiCanvas");
+        const confettiCtx = confettiCanvas.getContext("2d");
+        let confettiActive = false;
+        let confettiParticles = [];
+        let confettiAnimationId = null;
+
+        class ConfettiParticle {
+            constructor() {
+                this.x = Math.random() * confettiCanvas.width;
+                this.y = Math.random() * confettiCanvas.height - confettiCanvas.height;
+                this.size = Math.random() * 8 + 6;
+                this.color = ["#f87171", "#fb923c", "#fbbf24", "#4ade80", "#38bdf8", "#818cf8", "#c084fc"][Math.floor(Math.random() * 7)];
+                this.speedY = Math.random() * 3 + 2;
+                this.speedX = Math.random() * 2 - 1;
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 4 - 2;
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.rotation += this.rotationSpeed;
+            }
+
+            draw() {
+                confettiCtx.save();
+                confettiCtx.translate(this.x, this.y);
+                confettiCtx.rotate((this.rotation * Math.PI) / 180);
+                confettiCtx.fillStyle = this.color;
+                confettiCtx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                confettiCtx.restore();
+            }
+        }
+
+        function setupConfettiCanvas() {
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+        }
+
+        function animateConfetti() {
+            if (!confettiActive && confettiParticles.length === 0) {
+                confettiCanvas.classList.add("hidden");
+                return;
+            }
+
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+            for (let i = confettiParticles.length - 1; i >= 0; i--) {
+                const p = confettiParticles[i];
+                p.update();
+                p.draw();
+
+                if (p.y > confettiCanvas.height) {
+                    confettiParticles.splice(i, 1);
+                }
+            }
+
+            if (confettiActive && confettiParticles.length < 100) {
+                confettiParticles.push(new ConfettiParticle());
+            }
+
+            confettiAnimationId = requestAnimationFrame(animateConfetti);
+        }
+
+        function startConfetti() {
+            setupConfettiCanvas();
+            confettiCanvas.classList.remove("hidden");
+            confettiActive = true;
+            confettiParticles = [];
+            for (let i = 0; i < 120; i++) {
+                confettiParticles.push(new ConfettiParticle());
+            }
+            cancelAnimationFrame(confettiAnimationId);
+            animateConfetti();
+        }
+
+        function stopConfetti() {
+            confettiActive = false;
+        }
+
+        window.addEventListener("resize", () => {
+            if (!confettiCanvas.classList.contains("hidden")) {
+                setupConfettiCanvas();
+            }
+        });
+
+        // 브라우저 최초 로드 시 초기 렌더링
+        window.onload = function() {
+            buildLights();
+            resizeCanvas();
+            updateRemainingUI();
+        };
+    </script>
+</body>
+</html>
