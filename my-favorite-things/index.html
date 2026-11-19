@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="초등 5학년 영어 11단원 5차시. 좋아하는 것을 영어로 소개해요.">
+<title>My Favorite Things | Let's Write</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #182744;
+    --muted: #4c5d76;
+    --blue: #233fae;
+    --line: #d9e0ee;
+    --paper: #fff;
+    --wash: #f2f5fd;
+    --yellow: #ffdf7e;
+    font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--wash); color: var(--ink); }
+  button, input { font: inherit; }
+  button { cursor: pointer; }
+  button:disabled { cursor: default; opacity: .5; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #8b5700; outline-offset: 3px; }
+  input { min-width: 0; width: 100%; border: 1px solid #a3afc5; border-radius: .65rem; padding: .65rem .75rem; color: var(--ink); background: #fff; }
+  input[aria-invalid="true"] { border: 2px solid #b12338; }
+  .shell { width: min(64rem, calc(100% - 2rem)); margin: 2rem auto 3rem; }
+  .hero { padding: clamp(1rem, 4vw, 2.3rem); border-radius: 1.5rem; background: #223a9a; color: white; }
+  .hero h1 { margin: .25rem 0; font-family: Georgia, serif; font-size: clamp(2.1rem, 6.5vw, 4rem); line-height: 1.06; letter-spacing: -.04em; }
+  .hero p { margin: 0; color: #e5eaff; }
+  .hero .lesson { color: var(--yellow); font-size: .9rem; font-weight: 700; }
+  .steps { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; padding: 0; margin: 1rem 0; }
+  .steps li { display: flex; align-items: center; gap: .55rem; padding: .65rem .8rem; border-radius: .8rem; border: 1px solid var(--line); background: white; color: var(--muted); font-weight: 700; font-size: .9rem; }
+  .steps li[aria-current="step"] { background: #e3eaff; color: #243a96; border-color: #a4b2ed; }
+  .step-number { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; flex: 0 0 1.6rem; border-radius: 50%; background: #eef1f8; }
+  [aria-current="step"] .step-number { background: var(--blue); color: white; }
+  .panel { padding: clamp(1rem, 4vw, 2rem); background: var(--paper); border: 1px solid var(--line); border-radius: 1.3rem; box-shadow: 0 10px 28px #18274409; }
+  h2 { margin: 0 0 .4rem; font-size: clamp(1.4rem, 4vw, 2rem); }
+  .intro { color: var(--muted); margin: 0 0 1.15rem; line-height: 1.55; }
+  .memo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+  .memo { min-width: 0; margin: 0; padding: .8rem; border: 1px solid var(--line); border-radius: .85rem; }
+  .memo legend { padding: 0 .3rem; font-weight: 800; }
+  .choices { display: flex; flex-wrap: wrap; gap: .35rem; min-width: 0; }
+  .chip, .secondary, .primary { border-radius: .7rem; min-height: 2.65rem; font-weight: 700; }
+  .chip, .secondary { background: #fff; color: var(--ink); border: 1px solid #adb9d0; padding: .4rem .65rem; }
+  .chip:hover, .secondary:hover { background: #eef2ff; }
+  .chip[aria-pressed="true"] { color: #223681; background: #e5ebff; border-color: #405ac2; box-shadow: inset 0 0 0 1px #405ac2; }
+  .memo input { margin-top: .65rem; }
+  .name-note { margin-bottom: .9rem; }
+  .name-note label { display: block; font-weight: 800; }
+  .name-note input { max-width: 18rem; }
+  .primary { background: var(--blue); border: 1px solid var(--blue); color: white; padding: .65rem 1rem; }
+  .primary:hover { background: #182f8c; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; margin-top: 1.2rem; }
+  .actions.end { justify-content: flex-end; }
+  .feedback { color: #9c1630; font-weight: 700; margin: .75rem 0 0; }
+  .feedback:empty { display: none; }
+  details { border: 1px solid var(--line); border-radius: .75rem; padding: .7rem .85rem; margin-bottom: .8rem; background: var(--wash); }
+  summary { cursor: pointer; font-weight: 700; }
+  .sample { margin: .65rem 0 0; line-height: 1.55; }
+  .writing-tools { display: flex; justify-content: flex-end; margin-bottom: .65rem; }
+  .writing-row { border-bottom: 1px solid var(--line); padding: .75rem 0; }
+  .row-top, .sentence { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+  .row-top { justify-content: space-between; margin-bottom: .45rem; }
+  .memo-label { font-size: .9rem; color: var(--muted); margin: 0; overflow-wrap: anywhere; }
+  .hint-button { min-height: 2.2rem; font-size: .86rem; }
+  .sentence label { font-weight: 700; font-size: 1.05rem; }
+  .sentence input { flex: 1 1 9rem; max-width: 25rem; }
+  .hint { background: #fff2c7; border-radius: .5rem; padding: .45rem .65rem; margin: .5rem 0 0; overflow-wrap: anywhere; }
+  .hint .secondary { margin: .25rem 0 .25rem .45rem; }
+  .word-bank { margin-top: .5rem; }
+  .card-copy { background: #eef2ff; border-radius: 1rem; padding: 1.15rem; }
+  .card-copy h3 { margin: 0 0 .75rem; font: 700 1.65rem Georgia, serif; }
+  .card-copy p { margin: .65rem 0; font-size: clamp(1.25rem, 3vw, 2rem); line-height: 1.5; overflow-wrap: anywhere; }
+  .card-copy strong { color: #203999; text-decoration: underline; text-underline-offset: .16em; }
+  .read-prompt { margin: 1rem 0 0; padding: .7rem .85rem; border-radius: .65rem; color: #473300; background: #fff2c7; }
+  @media (max-width: 43rem) {
+    .shell { margin-top: 1rem; }
+    .memo-grid { grid-template-columns: 1fr; }
+    .steps li { padding: .45rem; gap: .3rem; font-size: .76rem; }
+    .step-number { width: 1.35rem; height: 1.35rem; flex-basis: 1.35rem; }
+  }
+  @media print {
+    body { background: white; }
+    .shell { width: 100%; margin: 0; }
+    .hero, .steps, .actions, .read-prompt, .screen-only { display: none !important; }
+    .panel { box-shadow: none; }
+    .card-copy { print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="hero">
+    <p class="lesson">5학년 영어 · 11단원 5차시 · B. Let's Write</p>
+    <h1 lang="en">My Favorite Things</h1>
+    <p>좋아하는 것과 잘하는 것을 영어로 소개해요.</p>
+  </header>
+  <ol class="steps" aria-label="활동 순서">
+    <li aria-current="step"><span class="step-number">1</span>한글 메모</li>
+    <li><span class="step-number">2</span>영어 글쓰기</li>
+    <li><span class="step-number">3</span>소개 카드</li>
+  </ol>
+  <section class="panel" id="memo-page" aria-labelledby="memo-title">
+    <h2 id="memo-title" tabindex="-1">한글로 생각하기</h2>
+    <p class="intro">네 가지를 골라요. 보기에 없으면 한글로 적어도 좋아요.</p>
+    <form id="memo-form">
+      <div class="memo name-note">
+        <label for="memo-name">내 이름 <span class="memo-label">(선택)</span></label>
+        <input id="memo-name" autocomplete="off" maxlength="35" placeholder="예: 김민지" aria-describedby="memo-error">
+      </div>
+      <div class="memo-grid" id="memo-grid"></div>
+      <p id="memo-error" class="feedback" role="alert"></p>
+      <div class="actions end"><button class="primary" type="submit">영어로 쓰기</button></div>
+    </form>
+  </section>
+  <section class="panel" id="writing-page" aria-labelledby="writing-title" hidden>
+    <h2 id="writing-title" tabindex="-1">영어로 글 쓰기</h2>
+    <p class="intro">내 메모를 보고 빈칸에 영어를 써요. 표현이 궁금하면 단어 힌트를 눌러요.</p>
+    <details>
+      <summary>교과서 예시문 보기</summary>
+      <p class="sample" lang="en">My name is Minsu.<br>My favorite food is pizza.<br>My favorite color is blue.<br>My favorite subject is math.<br>I’m good at doing math.</p>
+    </details>
+    <div class="writing-tools">
+      <button class="secondary" id="word-help" type="button" aria-pressed="false">음식·색깔 단어 도움</button>
+    </div>
+    <form id="writing-form">
+      <div id="writing-rows"></div>
+      <p id="writing-error" class="feedback" role="alert"></p>
+      <div class="actions">
+        <button class="secondary" type="button" id="back-to-memo">한글 메모로</button>
+        <button class="primary" type="submit">소개 카드 만들기</button>
+      </div>
+    </form>
+  </section>
+  <section class="panel" id="card-page" aria-labelledby="card-title" hidden>
+    <h2 id="card-title" tabindex="-1">내 소개 카드</h2>
+    <p class="intro screen-only">내가 쓴 다섯 문장을 확인해요.</p>
+    <article class="card-copy" lang="en">
+      <h3>My Favorite Things</h3>
+      <div id="card-text"></div>
+    </article>
+    <p class="read-prompt"><strong lang="en">C. Share It</strong> · 좋아하는 과목과 잘하는 것을 짝에게 읽어 줘요.</p>
+    <div class="actions">
+      <button class="secondary" type="button" id="back-to-writing">영어 글 고치기</button>
+      <button class="primary" type="button" id="restart-activity">다시하기</button>
+    </div>
+  </section>
+</main>
+<script>
+  const categories = [
+    {
+      id: "food", label: "좋아하는 음식", stem: "My favorite food is",
+      words: [
+        ["피자", "pizza", "🍕"], ["치킨", "chicken", "🍗"], ["샐러드", "salad", "🥗"],
+        ["스테이크", "steak", "🥩"], ["떡볶이", "spicy rice cakes", "🌶️"], ["아이스크림", "ice cream", "🍦"]
+      ]
+    },
+    {
+      id: "color", label: "좋아하는 색깔", stem: "My favorite color is",
+      words: [
+        ["파랑", "blue", "🔵"], ["빨강", "red", "🔴"], ["노랑", "yellow", "🟡"],
+        ["초록", "green", "🟢"], ["검정", "black", "⚫"], ["분홍", "pink", "🌸"],
+        ["보라", "purple", "🟣"], ["하양", "white", "⚪"]
+      ],
+      aliases: { 파란색: "blue", 빨간색: "red", 노란색: "yellow", 녹색: "green", 초록색: "green",
+        검은색: "black", 검정색: "black", 분홍색: "pink", 보라색: "purple", 흰색: "white", 하얀색: "white" }
+    },
+    {
+      id: "subject", label: "좋아하는 과목", stem: "My favorite subject is",
+      words: [
+        ["수학", "math", "🔢"], ["영어", "English", "🔤"], ["체육", "P.E.", "🏃"],
+        ["미술", "art", "🎨"], ["음악", "music", "🎵"], ["과학", "science", "🔬"]
+      ]
+    },
+    {
+      id: "skill", label: "잘하는 것", stem: "I’m good at",
+      words: [
+        ["그림 그리기", "drawing pictures", "🖍️"], ["영어로 말하기", "speaking English", "💬"],
+        ["수학 문제 풀기", "doing math", "🧮"], ["로봇 만들기", "making robots", "🤖"],
+        ["악기 연주하기", "playing music", "🎹"], ["운동하기", "playing sports", "🏃"],
+        ["축구하기", "playing soccer", "⚽"]
+      ],
+      aliases: { "영어로말하는것": "speaking English", "영어말하기": "speaking English",
+        "축구": "playing soccer", "축구하는것": "playing soccer" }
+    }
+  ];
+  const extraHints = {
+    food: {
+      김밥: "seaweed rice rolls", 라면: "instant noodles", 라멘: "ramen", 김치: "kimchi", 김치찌개: "kimchi stew",
+      비빔밥: "rice mixed with vegetables", 불고기: "grilled marinated beef", 돈가스: "pork cutlets", 돈까스: "pork cutlets",
+      삼겹살: "grilled pork belly", 떡국: "rice cake soup", 만두: "dumplings", 초밥: "sushi",
+      햄버거: "hamburgers", 감자튀김: "French fries", 샌드위치: "sandwiches", 스파게티: "spaghetti",
+      파스타: "pasta", 카레: "curry", 국수: "noodles", 우동: "udon", 볶음밥: "fried rice",
+      케이크: "cake", 초콜릿: "chocolate", 과자: "cookies", 딸기: "strawberries",
+      사과: "apples", 수박: "watermelon", 바나나: "bananas", 마라탕: "spicy hot pot soup", 탕후루: "candied fruit skewers",
+      감자전: "potato pancakes", 김치전: "kimchi pancakes", 파전: "green onion pancakes",
+      닭강정: "sweet crispy chicken", 양념치킨: "sweet and spicy fried chicken", 후라이드치킨: "fried chicken",
+      고구마: "sweet potatoes", 달걀말이: "rolled omelets", 계란말이: "rolled omelets", 계란찜: "steamed eggs",
+      부대찌개: "army stew", 된장찌개: "soybean paste stew", 순두부찌개: "soft tofu stew",
+      미역국: "seaweed soup", 삼계탕: "ginseng chicken soup", 갈비: "grilled ribs",
+      돼지갈비: "grilled pork ribs", 잡채: "glass noodles", 짜장면: "black bean noodles",
+      짬뽕: "spicy seafood noodles", 탕수육: "sweet and sour pork", 냉면: "cold noodles",
+      유산슬: "stir-fried meat, seafood, and vegetables",
+      유산슬덮밥: "stir-fried meat, seafood, and vegetables over rice",
+      팔보채: "stir-fried seafood and vegetables", 고추잡채: "stir-fried peppers and pork",
+      깐풍기: "sweet and spicy fried chicken", 깐쇼새우: "sweet and sour shrimp",
+      마파두부: "tofu in spicy sauce", 유린기: "fried chicken with spicy soy sauce",
+      쌀국수: "rice noodles", 샤브샤브: "shabu-shabu", 오므라이스: "omelet rice",
+      핫도그: "hot dogs", 콘도그: "corn dogs", 와플: "waffles", 붕어빵: "fish-shaped pastries",
+      호떡: "sweet Korean pancakes", 빙수: "shaved ice", 요구르트: "yogurt", 젤리: "gummies",
+      두바이초콜릿: "Dubai chocolate", 초코마시멜로: "chocolate marshmallows", 연어: "salmon",
+      새우: "shrimp", 포도: "grapes", 귤: "mandarins", 망고: "mangoes", 복숭아: "peaches"
+    },
+    color: {
+      남색: "navy blue", 남색깔: "navy blue", 네이비: "navy blue", 하늘: "sky blue", 하늘색: "sky blue",
+      연두: "light green", 연두색: "light green", 민트: "mint green", 민트색: "mint green",
+      주황: "orange", 주황색: "orange", 오렌지색: "orange", 회색: "gray", 갈색: "brown",
+      베이지: "beige", 베이지색: "beige", 금색: "gold", 은색: "silver", 연보라: "light purple",
+      연보라색: "light purple", 자주색: "magenta", 청록색: "teal", 무지개색: "rainbow colors",
+      아이보리: "ivory", 아이보리색: "ivory", 연분홍: "light pink", 연분홍색: "light pink",
+      진분홍: "dark pink", 진분홍색: "dark pink", 핫핑크: "hot pink", 라벤더색: "lavender",
+      코랄색: "coral", 살구색: "apricot", 형광노랑: "neon yellow", 카키색: "khaki",
+      청록: "teal", 자주: "magenta", 민트그린: "mint green"
+    },
+    subject: {
+      국어: "Korean", 한국어: "Korean", 사회: "social studies", 도덕: "ethics", 실과: "practical arts",
+      역사: "history", 컴퓨터: "computer science", 정보: "computer science",
+      창체: "creative activities", 창의적체험활동: "creative activities", 한국사: "Korean history",
+      한문: "classical Chinese", 안전: "safety education", 가정: "home economics",
+      중국어: "Chinese", 일본어: "Japanese", 독일어: "German", 프랑스어: "French"
+    },
+    skill: {
+      종이접기: "folding paper", 독서: "reading books", 책읽기: "reading books", 책읽는것: "reading books",
+      수영: "swimming", 수영하기: "swimming", 농구: "playing basketball", 농구하기: "playing basketball",
+      야구하기: "playing baseball", 배드민턴: "playing badminton", 배드민턴치기: "playing badminton",
+      배드민턴하기: "playing badminton", 줄넘기: "jumping rope", 달리기: "running", 달리기하기: "running",
+      자전거타기: "riding a bike", 스케이트타기: "skating", 태권도: "doing taekwondo", 태권도하기: "doing taekwondo",
+      요리: "cooking", 요리하기: "cooking", 노래부르기: "singing", 노래하기: "singing", 춤추기: "dancing",
+      피아노치기: "playing the piano", 기타치기: "playing the guitar", 바이올린켜기: "playing the violin",
+      게임하기: "playing games", 그림그리는것: "drawing pictures", 만들기: "making things",
+      레고만들기: "building with LEGO bricks", 퍼즐맞추기: "doing puzzles",
+      글쓰기: "writing", 이야기쓰기: "writing stories", 사진찍기: "taking photos",
+      코딩: "coding", 코딩하기: "coding", 뜨개질: "knitting", 뜨개질하기: "knitting",
+      색칠하기: "coloring", 물감섞기: "mixing paints", 물감칠하기: "painting",
+      만화그리기: "drawing comics", 캐릭터그리기: "drawing characters", 그림일기쓰기: "writing a picture diary",
+      점토만들기: "making things with clay", 클레이만들기: "making things with clay",
+      비즈만들기: "making things with beads", 팔찌만들기: "making bracelets", 종이비행기접기: "folding paper airplanes",
+      쿠키만들기: "making cookies", 빵만들기: "baking bread", 베이킹: "baking", 라면끓이기: "cooking ramyeon",
+      일기쓰기: "writing in a diary", 글씨쓰기: "writing neatly", 발표하기: "giving presentations",
+      영상편집: "editing videos", 영상편집하기: "editing videos", 영상만들기: "making videos",
+      동영상만들기: "making videos", 큐브맞추기: "solving Rubik’s Cubes", 보드게임하기: "playing board games",
+      숨바꼭질하기: "playing hide-and-seek", 피구하기: "playing dodgeball", 배구하기: "playing volleyball",
+      탁구치기: "playing table tennis", 테니스치기: "playing tennis", 볼링치기: "bowling",
+      줄넘기이단뛰기: "doing double unders", 훌라후프돌리기: "hula hooping", 물구나무서기: "doing handstands",
+      태권도발차기: "doing taekwondo kicks", 리코더불기: "playing the recorder",
+      친구도와주기: "helping friends", 정리하기: "tidying up", 청소하기: "cleaning"
+    }
+  };
+  const fields = [{ id: "name", label: "이름", stem: "My name is" }, ...categories];
+  const pages = ["memo", "writing", "card"];
+  const get = (id) => document.getElementById(id);
+  const normalize = (value) => value.trim().replace(/\s+/g, "");
+  const translations = new Map();
+  const translationLanguages = { sourceLanguage: "ko", targetLanguage: "en" };
+  let deviceTranslator;
+  let lastKoreanName = null;
+  let activityNumber = 0;
+
+  const initials = ["g", "kk", "n", "d", "tt", "r", "m", "b", "pp", "s", "ss", "", "j", "jj", "ch", "k", "t", "p", "h"];
+  const vowels = ["a", "ae", "ya", "yae", "eo", "e", "yeo", "ye", "o", "wa", "wae", "oe", "yo", "u", "wo", "we", "wi", "yu", "eu", "ui", "i"];
+  const finals = ["", "k", "k", "k", "n", "n", "n", "t", "l", "k", "m", "p", "l", "l", "p", "l", "m", "p", "p", "t", "t", "ng", "t", "t", "k", "t", "p", "t"];
+  const familyNames = { 김: "Kim", 이: "Lee", 박: "Park", 최: "Choi", 정: "Jung", 강: "Kang",
+    조: "Cho", 윤: "Yoon", 장: "Jang", 임: "Lim", 신: "Shin", 오: "Oh", 유: "Yoo", 류: "Ryu",
+    권: "Kwon", 전: "Jeon", 서: "Seo", 문: "Moon", 손: "Son", 배: "Bae", 백: "Baek", 노: "Noh",
+    주: "Joo", 하: "Ha", 우: "Woo", 구: "Koo", 양: "Yang" };
+  const doubleFamilyNames = ["남궁", "황보", "제갈", "선우", "사공", "서문", "독고", "동방", "어금"];
+
+  function romanizeHangul(part) {
+    const letters = Array.from(part, (syllable) => {
+      const index = syllable.charCodeAt(0) - 0xac00;
+      return initials[Math.floor(index / 588)] + vowels[Math.floor(index / 28) % 21] + finals[index % 28];
+    }).join("");
+    return letters.charAt(0).toUpperCase() + letters.slice(1);
+  }
+
+  function romanizeName(name) {
+    if (!name || /^[a-z][a-z .'-]*$/i.test(name)) return name;
+    const parts = name.split(/\s+/);
+    if (parts.length > 1) {
+      return [familyNames[parts[0]] ?? romanizeHangul(parts[0]), ...parts.slice(1).map(romanizeHangul)].join(" ");
+    }
+    if (name.length < 3) return romanizeHangul(name);
+    const doubleFamily = name.length >= 4 && doubleFamilyNames.includes(name.slice(0, 2));
+    const surname = name.slice(0, doubleFamily ? 2 : 1);
+    return (familyNames[surname] ?? romanizeHangul(surname)) + " " + romanizeHangul(name.slice(surname.length));
+  }
+
+  function make(tag, className, content) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (content) element.textContent = content;
+    return element;
+  }
+
+  function button(label, className) {
+    const element = make("button", className, label);
+    element.type = "button";
+    return element;
+  }
+
+  function showPage(page) {
+    pages.forEach((name, index) => {
+      get(name + "-page").hidden = name !== page;
+      const marker = document.querySelectorAll(".steps li")[index];
+      if (name === page) marker.setAttribute("aria-current", "step");
+      else marker.removeAttribute("aria-current");
+    });
+    get(page + "-title").focus({ preventScroll: true });
+    window.scrollTo(0, 0);
+  }
+
+  function buildMemo(category) {
+    const group = make("fieldset", "memo");
+    const choices = make("div", "choices");
+    const input = make("input");
+    input.id = "memo-" + category.id;
+    input.placeholder = "한글로 직접 적기";
+    input.maxLength = 40;
+    input.setAttribute("aria-label", category.label + " 한글 메모");
+    input.setAttribute("aria-describedby", "memo-error");
+    for (const [korean, , icon] of category.words) {
+      const choice = button(korean, "chip");
+      const pictogram = make("span", "", icon + " ");
+      pictogram.setAttribute("aria-hidden", "true");
+      choice.prepend(pictogram);
+      choice.dataset.word = korean;
+      choice.setAttribute("aria-pressed", "false");
+      choice.addEventListener("click", () => {
+        input.value = korean;
+        updateSelection();
+      });
+      choices.append(choice);
+    }
+    function updateSelection() {
+      for (const choice of choices.children) {
+        choice.setAttribute("aria-pressed", String(normalize(input.value) === normalize(choice.dataset.word)));
+      }
+      input.removeAttribute("aria-invalid");
+      get("memo-error").textContent = "";
+    }
+    input.addEventListener("input", updateSelection);
+    group.append(make("legend", "", category.label), choices, input);
+    get("memo-grid").append(group);
+  }
+
+  function getHint(field, note) {
+    if (field.id === "name") {
+      return note ? "영문 이름 예시 · " + romanizeName(note) + " (필요하면 고쳐 써요.)"
+        : "영어 이름은 첫 글자를 대문자로 써요. 예: Minji";
+    }
+    if (/^[a-z][a-z0-9 .'-]*$/i.test(note)) return note;
+    const key = normalize(note.normalize("NFC")).replace(/[.!?]+$/, "");
+    const shortened = field.id === "skill" ? key.replace(/는것[을]?$/, "기") : key.replace(/(?:색깔|과목)$/, "");
+    for (const spelling of new Set([key, shortened])) {
+      const match = field.words.find(([korean]) => normalize(korean) === spelling);
+      if (match) return match[1];
+      if (Object.hasOwn(field.aliases ?? {}, spelling)) return field.aliases[spelling];
+      if (Object.hasOwn(extraHints[field.id], spelling)) return extraHints[field.id][spelling];
+    }
+    return "";
+  }
+
+  function translationSource(field, note) {
+    const phrase = note.replace(/[.!?]+$/, "");
+    if (field.id === "food") return "제가 가장 좋아하는 음식은 " + phrase + "입니다.";
+    if (field.id === "skill") return "저는 " + phrase + " 잘해요.";
+    return note;
+  }
+
+  async function translateHint(field, note) {
+    const key = field.id + ":" + normalize(note);
+    if (!translations.has(key)) {
+      const request = resolveTranslation(field, note).catch((error) => {
+        translations.delete(key);
+        throw error;
+      });
+      translations.set(key, request);
+    }
+    return translations.get(key);
+  }
+
+  async function resolveTranslation(field, note) {
+    const source = translationSource(field, note);
+    if (globalThis.Translator) {
+      const onlineDelay = 3500;
+      let timer;
+      try {
+        const translator = await Promise.race([
+          getDeviceTranslator(),
+          new Promise((_, reject) => {
+            timer = setTimeout(() => reject(new Error("Device translation still preparing")), onlineDelay);
+          })
+        ]);
+        const translation = await translator.translate(source, { signal: AbortSignal.timeout(4000) });
+        return formatTranslation(field, note, translation);
+      } catch {
+        // Try online while the browser model continues preparing.
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+    const url = new URL("https://api.mymemory.translated.net/get");
+    url.search = new URLSearchParams({ q: source, langpair: "ko|en" });
+    const response = await fetch(url, {
+      credentials: "omit",
+      referrerPolicy: "no-referrer",
+      signal: AbortSignal.timeout(7000)
+    });
+    if (!response.ok) throw new Error("Translation unavailable");
+    const data = await response.json();
+    if (Number(data.responseStatus) !== 200 || typeof data.responseData?.translatedText !== "string") {
+      throw new Error("Translation unavailable");
+    }
+    return formatTranslation(field, note, data.responseData.translatedText);
+  }
+
+  async function getDeviceTranslator() {
+    if (!deviceTranslator) {
+      deviceTranslator = globalThis.Translator.create({
+        ...translationLanguages,
+        signal: AbortSignal.timeout(90000)
+      }).catch((error) => {
+        deviceTranslator = undefined;
+        throw error;
+      });
+    }
+    return deviceTranslator;
+  }
+
+  function soundKey(text) {
+    return text.toLowerCase().normalize("NFD").replace(/[^a-z]/g, "").replace(/eo/g, "o").replace(/eu/g, "u");
+  }
+
+  function formatTranslation(field, note, translation) {
+    let word = translation.trim();
+    if (field.id === "food") {
+      word = word.replace(/^my favou?rite (?:food|dish) is\s+/i, "");
+      const korean = note.normalize("NFC").replace(/[\s.!?·-]+/g, "");
+      if (/^[가-힣]+$/.test(korean) && soundKey(word) === soundKey(romanizeHangul(korean))) {
+        throw new Error("Only a pronunciation spelling was returned");
+      }
+    }
+    if (field.id === "skill") {
+      const phrase = word.match(/^I(?:['’]m| am)\s+(?:(?:very|really|quite|pretty)\s+)?(?:good|skilled|proficient)\s+at\s+(.+)$/i);
+      if (!phrase) throw new Error("Translation did not fit the sentence");
+      word = phrase[1].trim();
+    }
+    word = word.replace(/[!?]+$/, "");
+    if (!/^[a-z][a-z0-9 .,'’()&/-]*$/i.test(word) || word.length > 70) {
+      throw new Error("Invalid translation");
+    }
+    return /^P\.E\.$/i.test(word) ? "P.E." : word.replace(/\.+$/, "");
+  }
+
+  function buildWriting(field) {
+    const row = make("div", "writing-row");
+    const top = make("div", "row-top");
+    const memoLabel = make("p", "memo-label");
+    memoLabel.id = "label-" + field.id;
+    const hintButton = button("단어 힌트", "secondary hint-button");
+    hintButton.setAttribute("aria-label", field.label + " 단어 힌트");
+    const hint = make("p", "hint");
+    hint.id = "hint-" + field.id;
+    hint.hidden = true;
+    hint.setAttribute("role", "status");
+    hintButton.setAttribute("aria-controls", hint.id);
+    hintButton.setAttribute("aria-expanded", "false");
+    hintButton.addEventListener("click", () => {
+      hint.hidden = !hint.hidden;
+      hintButton.setAttribute("aria-expanded", String(!hint.hidden));
+      hintButton.textContent = hint.hidden ? "단어 힌트" : "힌트 닫기";
+      if (!hint.hidden) showHint();
+    });
+    async function showHint(retrying = false) {
+      const note = hint.dataset.note;
+      const activity = activityNumber;
+      const stillCurrent = () => activityNumber === activity && hint.dataset.note === note;
+      const word = getHint(field, note);
+      if (word) {
+        hint.textContent = word;
+        hint.lang = field.id === "name" ? "ko" : "en";
+        return;
+      }
+      hint.lang = "ko";
+      hint.textContent = retrying ? "다시 번역하고 있어요…" : "영어 표현을 찾고 있어요…";
+      const startedAt = performance.now();
+      try {
+        const translation = await translateHint(field, note);
+        if (stillCurrent()) {
+          hint.lang = "en";
+          hint.textContent = translation;
+        }
+      } catch {
+        if (retrying) {
+          await new Promise((resolve) => setTimeout(resolve, Math.max(0, 850 - (performance.now() - startedAt))));
+        }
+        if (stillCurrent()) {
+          hint.lang = "ko";
+          const retry = button("다시 번역하기", "secondary");
+          retry.addEventListener("click", () => {
+            hintButton.focus({ preventScroll: true });
+            showHint(true);
+          });
+          const message = retrying ? "다시 찾아봤지만 영어 힌트를 찾지 못했어요. 한글 메모에서 짧은 표현으로 바꿔 보세요."
+            : "영어 힌트를 찾지 못했어요.";
+          hint.replaceChildren(message, retry);
+        }
+      }
+    }
+    const sentence = make("div", "sentence");
+    const input = make("input");
+    input.id = "english-" + field.id;
+    input.lang = "en";
+    input.maxLength = 70;
+    input.autocomplete = "off";
+    input.spellcheck = false;
+    input.setAttribute("autocapitalize", "off");
+    input.setAttribute("aria-describedby", memoLabel.id + " " + hint.id + " writing-error");
+    input.addEventListener("input", () => {
+      input.removeAttribute("aria-invalid");
+      get("writing-error").textContent = "";
+    });
+    const label = make("label", "", field.stem);
+    label.htmlFor = input.id;
+    label.lang = "en";
+    sentence.append(label, input, make("span", "", "."));
+    top.append(memoLabel, hintButton);
+    row.append(top, sentence, hint);
+    if (["food", "color"].includes(field.id)) {
+      const bank = make("div", "choices word-bank");
+      bank.id = "bank-" + field.id;
+      bank.hidden = true;
+      bank.setAttribute("aria-label", field.label + " 영어 보기");
+      for (const [korean, english] of field.words) {
+        const option = button(english, "chip");
+        option.lang = "en";
+        option.setAttribute("aria-label", english + " (" + korean + ")");
+        option.addEventListener("click", () => {
+          input.value = english;
+          input.dispatchEvent(new Event("input"));
+          input.focus();
+        });
+        bank.append(option);
+      }
+      row.append(bank);
+    }
+    get("writing-rows").append(row);
+  }
+
+  function flag(input, feedback, message) {
+    input.setAttribute("aria-invalid", "true");
+    feedback.textContent = message;
+    input.focus();
+  }
+
+  function resetHint(hint) {
+    const toggle = document.querySelector('[aria-controls="' + hint.id + '"]');
+    hint.textContent = "";
+    hint.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.textContent = "단어 힌트";
+  }
+
+  categories.forEach(buildMemo);
+  fields.forEach(buildWriting);
+  get("memo-name").addEventListener("input", (event) => {
+    event.currentTarget.removeAttribute("aria-invalid");
+    get("memo-error").textContent = "";
+  });
+  get("memo-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const nameInput = get("memo-name");
+    const koreanName = nameInput.value.normalize("NFC").trim().replace(/\s+/g, " ");
+    if (koreanName && !/^(?:[가-힣]+(?: [가-힣]+)*|[a-z][a-z .'-]*)$/i.test(koreanName)) {
+      flag(nameInput, get("memo-error"), "이름을 한글이나 영어로 적어 보세요.");
+      return;
+    }
+    const missing = categories.find(({ id }) => !get("memo-" + id).value.trim());
+    if (missing) {
+      flag(get("memo-" + missing.id), get("memo-error"), "‘" + missing.label + "’을 골라 보거나 적어 보세요.");
+      return;
+    }
+    if (koreanName !== lastKoreanName) {
+      if (koreanName || lastKoreanName) {
+        const englishName = get("english-name");
+        englishName.value = romanizeName(koreanName);
+        englishName.dispatchEvent(new Event("input"));
+      }
+      lastKoreanName = koreanName;
+    }
+    for (const field of fields) {
+      const isName = field.id === "name";
+      const note = isName ? koreanName : get("memo-" + field.id).value.trim();
+      get("label-" + field.id).textContent = note ? "내 메모 · " + note : "영어로 쓸 내 이름";
+      const hint = get("hint-" + field.id);
+      if (hint.dataset.note !== note) {
+        hint.dataset.note = note;
+        resetHint(hint);
+      }
+    }
+    showPage("writing");
+  });
+
+  function setWordHelp(show) {
+    const control = get("word-help");
+    control.setAttribute("aria-pressed", String(show));
+    control.textContent = show ? "음식·색깔 보기 닫기" : "음식·색깔 단어 도움";
+    for (const id of ["food", "color"]) get("bank-" + id).hidden = !show;
+  }
+
+  get("word-help").addEventListener("click", (event) => {
+    setWordHelp(event.currentTarget.getAttribute("aria-pressed") === "false");
+  });
+
+  get("writing-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const values = [];
+    for (const field of fields) {
+      const input = get("english-" + field.id);
+      const value = input.value.trim();
+      if (!/[a-z]/i.test(value) || /[\u1100-\u11ff\u3130-\u318f\uac00-\ud7af]/.test(value)) {
+        flag(input, get("writing-error"), "‘" + field.label + "’ 칸에 영어를 써 보세요.");
+        return;
+      }
+      values.push(value);
+    }
+    const text = get("card-text");
+    text.replaceChildren();
+    fields.forEach((field, index) => {
+      const value = values[index];
+      const line = make("p", "", field.stem + " ");
+      line.append(make("strong", "", value));
+      if (!value.endsWith(".")) line.append(".");
+      text.append(line);
+    });
+    showPage("card");
+  });
+
+  get("back-to-memo").addEventListener("click", () => showPage("memo"));
+  get("back-to-writing").addEventListener("click", () => showPage("writing"));
+  get("restart-activity").addEventListener("click", () => {
+    activityNumber++;
+    lastKoreanName = null;
+    get("memo-form").reset();
+    get("writing-form").reset();
+    for (const field of fields) {
+      get("memo-" + field.id).dispatchEvent(new Event("input"));
+      get("english-" + field.id).dispatchEvent(new Event("input"));
+      const hint = get("hint-" + field.id);
+      delete hint.dataset.note;
+      resetHint(hint);
+      get("label-" + field.id).textContent = "";
+    }
+    setWordHelp(false);
+    get("writing-page").querySelector("details").open = false;
+    get("card-text").replaceChildren();
+    showPage("memo");
+  });
+</script>
+</body>
+</html>
